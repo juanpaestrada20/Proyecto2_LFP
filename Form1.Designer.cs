@@ -160,7 +160,7 @@
             this.btnTokens.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
             this.btnTokens.Image = ((System.Drawing.Image)(resources.GetObject("btnTokens.Image")));
             this.btnTokens.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnTokens.Location = new System.Drawing.Point(648, 12);
+            this.btnTokens.Location = new System.Drawing.Point(578, 12);
             this.btnTokens.Name = "btnTokens";
             this.btnTokens.Size = new System.Drawing.Size(112, 48);
             this.btnTokens.TabIndex = 7;
@@ -168,6 +168,7 @@
             this.btnTokens.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btnTokens.UseVisualStyleBackColor = true;
             this.btnTokens.Visible = false;
+            this.btnTokens.Click += new System.EventHandler(this.btnTokens_Click);
             // 
             // btnError
             // 
@@ -180,7 +181,7 @@
             this.btnError.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
             this.btnError.Image = ((System.Drawing.Image)(resources.GetObject("btnError.Image")));
             this.btnError.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnError.Location = new System.Drawing.Point(648, 12);
+            this.btnError.Location = new System.Drawing.Point(932, 12);
             this.btnError.Name = "btnError";
             this.btnError.Size = new System.Drawing.Size(121, 48);
             this.btnError.TabIndex = 9;
@@ -188,6 +189,7 @@
             this.btnError.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btnError.UseVisualStyleBackColor = true;
             this.btnError.Visible = false;
+            this.btnError.Click += new System.EventHandler(this.btnError_Click);
             // 
             // btnLimpiar
             // 
@@ -200,14 +202,13 @@
             this.btnLimpiar.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
             this.btnLimpiar.Image = ((System.Drawing.Image)(resources.GetObject("btnLimpiar.Image")));
             this.btnLimpiar.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnLimpiar.Location = new System.Drawing.Point(522, 12);
+            this.btnLimpiar.Location = new System.Drawing.Point(455, 12);
             this.btnLimpiar.Name = "btnLimpiar";
             this.btnLimpiar.Size = new System.Drawing.Size(129, 48);
             this.btnLimpiar.TabIndex = 10;
             this.btnLimpiar.Text = "Limpiar ";
             this.btnLimpiar.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btnLimpiar.UseVisualStyleBackColor = true;
-            this.btnLimpiar.Visible = false;
             this.btnLimpiar.Click += new System.EventHandler(this.btnLimpiar_Click);
             // 
             // btnSimbolos
@@ -221,7 +222,7 @@
             this.btnSimbolos.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
             this.btnSimbolos.Image = ((System.Drawing.Image)(resources.GetObject("btnSimbolos.Image")));
             this.btnSimbolos.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnSimbolos.Location = new System.Drawing.Point(766, 12);
+            this.btnSimbolos.Location = new System.Drawing.Point(705, 12);
             this.btnSimbolos.Name = "btnSimbolos";
             this.btnSimbolos.Size = new System.Drawing.Size(221, 48);
             this.btnSimbolos.TabIndex = 8;
@@ -229,6 +230,7 @@
             this.btnSimbolos.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btnSimbolos.UseVisualStyleBackColor = true;
             this.btnSimbolos.Visible = false;
+            this.btnSimbolos.Click += new System.EventHandler(this.btnSimbolos_Click);
             // 
             // btnAcerca
             // 
@@ -243,11 +245,12 @@
             this.btnAcerca.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnAcerca.Location = new System.Drawing.Point(70, 12);
             this.btnAcerca.Name = "btnAcerca";
-            this.btnAcerca.Size = new System.Drawing.Size(170, 48);
+            this.btnAcerca.Size = new System.Drawing.Size(103, 48);
             this.btnAcerca.TabIndex = 11;
-            this.btnAcerca.Text = "Acerca de...";
+            this.btnAcerca.Text = "Abrir";
             this.btnAcerca.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btnAcerca.UseVisualStyleBackColor = true;
+            this.btnAcerca.Click += new System.EventHandler(this.btnAcerca_Click);
             // 
             // btnGuardar
             // 
@@ -260,13 +263,14 @@
             this.btnGuardar.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
             this.btnGuardar.Image = ((System.Drawing.Image)(resources.GetObject("btnGuardar.Image")));
             this.btnGuardar.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnGuardar.Location = new System.Drawing.Point(246, 12);
+            this.btnGuardar.Location = new System.Drawing.Point(179, 12);
             this.btnGuardar.Name = "btnGuardar";
             this.btnGuardar.Size = new System.Drawing.Size(132, 48);
             this.btnGuardar.TabIndex = 5;
             this.btnGuardar.Text = "Guardar";
             this.btnGuardar.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btnGuardar.UseVisualStyleBackColor = true;
+            this.btnGuardar.Click += new System.EventHandler(this.btnGuardar_Click);
             // 
             // btnTraducir
             // 
@@ -279,7 +283,7 @@
             this.btnTraducir.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
             this.btnTraducir.Image = ((System.Drawing.Image)(resources.GetObject("btnTraducir.Image")));
             this.btnTraducir.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnTraducir.Location = new System.Drawing.Point(384, 12);
+            this.btnTraducir.Location = new System.Drawing.Point(317, 12);
             this.btnTraducir.Name = "btnTraducir";
             this.btnTraducir.Size = new System.Drawing.Size(132, 48);
             this.btnTraducir.TabIndex = 6;
@@ -316,12 +320,13 @@
         '\"',
         '\'',
         '\''};
-            this.txtSalida.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\r\n^\\s*(case|default)\\s*[^:]*" +
-    "(?<range>:)\\s*(?<range>[^;]+);";
+            this.txtSalida.AutoIndentCharsPatterns = "\r\n^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\r\n^\\s*(case|default)\\s*[^:" +
+    "]*(?<range>:)\\s*(?<range>[^;]+);\r\n";
             this.txtSalida.AutoScrollMinSize = new System.Drawing.Size(27, 14);
             this.txtSalida.BackBrush = null;
             this.txtSalida.BackColor = System.Drawing.Color.CornflowerBlue;
             this.txtSalida.BookmarkColor = System.Drawing.Color.OldLace;
+            this.txtSalida.BracketsHighlightStrategy = FastColoredTextBoxNS.BracketsHighlightStrategy.Strategy2;
             this.txtSalida.CaretColor = System.Drawing.Color.White;
             this.txtSalida.CharHeight = 14;
             this.txtSalida.CharWidth = 8;
@@ -332,10 +337,15 @@
             this.txtSalida.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
             this.txtSalida.IndentBackColor = System.Drawing.Color.CornflowerBlue;
             this.txtSalida.IsReplaceMode = false;
+            this.txtSalida.Language = FastColoredTextBoxNS.Language.CSharp;
+            this.txtSalida.LeftBracket = '(';
+            this.txtSalida.LeftBracket2 = '{';
             this.txtSalida.LineNumberColor = System.Drawing.Color.Tomato;
             this.txtSalida.Location = new System.Drawing.Point(602, 95);
             this.txtSalida.Name = "txtSalida";
             this.txtSalida.Paddings = new System.Windows.Forms.Padding(0);
+            this.txtSalida.RightBracket = ')';
+            this.txtSalida.RightBracket2 = '}';
             this.txtSalida.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
             this.txtSalida.ServiceColors = ((FastColoredTextBoxNS.ServiceColors)(resources.GetObject("txtSalida.ServiceColors")));
             this.txtSalida.ServiceLinesColor = System.Drawing.Color.CornflowerBlue;

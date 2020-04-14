@@ -64,7 +64,10 @@ namespace Proyecto_2
             DOUBLE,
             STATIC,
             TRUE,
-            FALSE
+            FALSE,
+            OPERADOR_O,
+            OPERADOR_Y,
+            ULTIMO
         }
 
         private Tipo tipoToken;
@@ -200,6 +203,10 @@ namespace Proyecto_2
                     return "True";
                 case Tipo.FALSE:
                     return "false";
+                case Tipo.OPERADOR_O:
+                    return "||";
+                case Tipo.OPERADOR_Y:
+                    return "&&";
                 default:
                     return "Desconocido";
             }
@@ -326,6 +333,10 @@ namespace Proyecto_2
                     return 53;
                 case Tipo.FALSE:
                     return 54;
+                case Tipo.OPERADOR_O:
+                    return 55;
+                case Tipo.OPERADOR_Y:
+                    return 56;
                 default:
                     return 0;
             }

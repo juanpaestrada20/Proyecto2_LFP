@@ -70,23 +70,52 @@ namespace Proyecto_2
             btnError.Visible = false;
             btnTokens.Visible = false;
             btnSimbolos.Visible = false;
-            btnLimpiar.Visible = false;
-            Console.WriteLine(txtEntrada.Text);
             txtEntrada.Text = "";
+            txtSalida.Text = "";
+            txtConsola.Text = "";
+            if (File.Exists(AnalizadorLexico.rutaTokens))
+            {
+                File.Delete(AnalizadorLexico.rutaTokens);
+            }
+            if (File.Exists(Analizador_Sintactico.rutaTabla))
+            {
+                File.Delete(Analizador_Sintactico.rutaTabla);
+            }
+            if (File.Exists(AnalizadorLexico.rutaError))
+            {
+                File.Delete(AnalizadorLexico.rutaError);
+            }
 
         }
 
         private void btnTraducir_Click(object sender, EventArgs e)
         {
-            String entrada = txtEntrada.Text;
+             String entrada = txtEntrada.Text;
             AnalizadorLexico analizador = new AnalizadorLexico();
             LinkedList<Token> tokens = analizador.Escanner(entrada);
             if (AnalizadorLexico.listaErrores.Count == 0)
             {
-                MessageBox.Show("No se han encontrado errores", "Análisis Finalizado", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("No se han encontrado errores léxicos", "Análisis Léxico Finalizado", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 btnTokens.Visible = true;
-                btnSimbolos.Visible = true;
+
+                tokens.AddLast(new Token(Token.Tipo.ULTIMO, "Ultimo", 0, 0));
                 analizador.generarHTML_Tokens(tokens);
+                Analizador_Sintactico analizadorSintactico = new Analizador_Sintactico();
+                analizadorSintactico.parsear(tokens);
+                if (!analizadorSintactico.VerificarAnalisis())
+                {
+                    MessageBox.Show("No se han encontrado errores sintácticos", "Análisis Sintáctico Finalizado");
+                    btnSimbolos.Visible = true;
+                    txtSalida.Text = analizadorSintactico.generarTraduccion();
+                    txtConsola.Text = analizadorSintactico.generarImpresion();
+
+                }
+                else
+                {
+                    MessageBox.Show("Se han encontrado errores sintácticos", "Análisis Sintáctico Finalizado");
+                    analizadorSintactico.generar_HTML_Errores();
+                    btnError.Visible = true;
+                }
             }
             else
             {
@@ -118,8 +147,8 @@ namespace Proyecto_2
             {
                 columna++;
             }
-          //  lblFila.Text = "Fila: " + fila;
-           // lblColumna.Text = "Columna: " + columna;
+            //  lblFila.Text = "Fila: " + fila;
+            // lblColumna.Text = "Columna: " + columna;
         }
 
         private void panel1_MouseDown(object sender, MouseEventArgs e)
@@ -145,6 +174,104 @@ namespace Proyecto_2
 
         private void txtEntrada_KeyDown(object sender, KeyEventArgs e)
         {
+        }
+
+        private void btnAcerca_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Stream stream;
+                OpenFileDialog dialogo = new OpenFileDialog();
+                dialogo.Title = "Seleccione archivo";
+                dialogo.Filter = "(*.cs)|*.cs";
+                if (dialogo.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    if ((stream = dialogo.OpenFile()) != null)
+                    {
+                        string texto = File.ReadAllText(dialogo.FileName);
+                        txtEntrada.Text = texto;
+                        stream.Close();
+                    }
+                    else
+                    {
+                        MessageBox.Show("El archivo no es compatible", "Error de archivo");
+                    }
+
+                }
+            }
+            catch (FileNotFoundException)
+            {
+                throw;
+            }
+            catch (IOException ex)
+            {
+                if (ex.Source != null)
+                    Console.WriteLine("IOException source: {0}", ex.Source);
+                throw;
+            }
+        }
+
+        private void btnTokens_Click(object sender, EventArgs e)
+        {
+            if (File.Exists(AnalizadorLexico.rutaTokens))
+            {
+                System.Diagnostics.Process p = new System.Diagnostics.Process();
+                p.StartInfo.FileName = AnalizadorLexico.rutaTokens;
+                p.Start();
+            }
+        }
+
+        private void btnGuardar_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (txtSalida.Text == "")
+                {
+                    MessageBox.Show("No hay ningun archivo para guardar", "Error al guardar", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                else
+                {
+                    SaveFileDialog guardar = new SaveFileDialog();
+                    guardar.Title = "Guardar archivo como";
+                    guardar.Filter = "(*.py)|*.py";
+                    guardar.FileName = "resultado";
+                    guardar.DefaultExt = ".py";
+                    if (guardar.ShowDialog() == DialogResult.OK)
+                    {
+                        using (Stream s = File.Open(guardar.FileName, FileMode.CreateNew))
+                        using (StreamWriter sw = new StreamWriter(s))
+                        {
+                            sw.Write(txtSalida.Text);
+                            sw.Flush();
+                            sw.Close();
+                        }
+                    }
+                }
+            }
+            catch (IOException)
+            {
+                throw;
+            }
+        }
+
+        private void btnSimbolos_Click(object sender, EventArgs e)
+        {
+            if (File.Exists(Analizador_Sintactico.rutaTabla))
+            {
+                System.Diagnostics.Process p = new System.Diagnostics.Process();
+                p.StartInfo.FileName = Analizador_Sintactico.rutaTabla;
+                p.Start();
+            }
+        }
+
+        private void btnError_Click(object sender, EventArgs e)
+        {
+            if (File.Exists(AnalizadorLexico.rutaError))
+            {
+                System.Diagnostics.Process p = new System.Diagnostics.Process();
+                p.StartInfo.FileName = Analizador_Sintactico.rutaTabla;
+                p.Start();
+            }
         }
     }
 }

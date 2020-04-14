@@ -16,6 +16,9 @@ namespace Proyecto_2
         private int columna;
         private String auxlex;
         public static LinkedList<Error> listaErrores = new LinkedList<Error>();
+        public static string rutaTokens = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory) + "\\tokens.html";
+        public static string rutaError = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory) + "\\error.html";
+        
 
         public LinkedList<Token> Escanner(String entrada)
         {
@@ -32,7 +35,6 @@ namespace Proyecto_2
             {
 
                 c = entrada.ElementAt(i);
-                Console.WriteLine(c);
                 switch (estado)
                 {
                     //decidir estado
@@ -65,7 +67,7 @@ namespace Proyecto_2
                         {
                             if (c.CompareTo('#') == 0 && i == entrada.Length - 1)
                             {
-                                Console.WriteLine("Hemos concluido el analiss con exito");
+                                Console.WriteLine("Hemos concluido el analisis con exito");
                                 break;
                             }
                             estado = 4;
@@ -146,7 +148,7 @@ namespace Proyecto_2
                                 break;
                             }
                         }
-                        else if (auxlex.CompareTo("Class") == 0)
+                        else if (auxlex.CompareTo("class") == 0)
                         {
                             d = entrada.ElementAt(i + 1);
                             if (Char.IsLetter(d))
@@ -412,12 +414,12 @@ namespace Proyecto_2
                                 break;
                             }
                         }
-                        else if (c.Equals(' ') || c.Equals('\t') || c.Equals('\n'))
+                        else if (Char.IsLetter(c) == false)
                         {
                             i--;
                             columna--;
                             auxlex = auxlex.TrimEnd(c);
-                            agregarToken(Token.Tipo.ID);
+                            estado = 8;
                             break;
                         }
                         estado = 1;
@@ -455,7 +457,7 @@ namespace Proyecto_2
                                 else
                                 {
                                     i--;
-                                    agregarToken(Token.Tipo.NUMERO)
+                                    agregarToken(Token.Tipo.NUMERO);
                                 }
                                 break;
                             }
@@ -474,7 +476,6 @@ namespace Proyecto_2
                         }
                         else if (c == '\'')
                         {
-
                             auxlex = auxlex.TrimEnd(c);
                             agregarToken(Token.Tipo.CARACTER);
                             auxlex += c;
@@ -570,11 +571,11 @@ namespace Proyecto_2
                                 auxlex += d;
                                 columna++;
                                 i++;
-                                agregarToken(Token.Tipo.IGUAL);
+                                agregarToken(Token.Tipo.IGUAL_IGUAL);
                             }
                             else
                             {
-                                agregarToken(Token.Tipo.IGUAL_IGUAL);
+                                agregarToken(Token.Tipo.IGUAL);
                             }
                         }
                         else if (c.Equals('/'))
@@ -663,6 +664,38 @@ namespace Proyecto_2
                             columna++;
                             agregarToken(Token.Tipo.COMA);
                         }
+                        else if (c.Equals('|'))
+                        {
+                            auxlex += c;
+                            columna++;
+                            if (c.Equals('|'))
+                            {
+                                auxlex += c;
+                                columna++;
+                                agregarToken(Token.Tipo.OPERADOR_O);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Se esperaba \'|\'");
+                                agregarError("Se esperaba \'|\'", columna, fila);
+                            }
+                        }
+                        else if (c.Equals('&'))
+                        {
+                            auxlex += c;
+                            columna++;
+                            if (c.Equals('&'))
+                            {
+                                auxlex += c;
+                                columna++;
+                                agregarToken(Token.Tipo.OPERADOR_Y);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Se esperaba \'&\'");
+                                agregarError("Se esperaba \'&\'", columna, fila);
+                            }
+                        }
                         else
                         {
                             auxlex += c;
@@ -675,6 +708,7 @@ namespace Proyecto_2
                         if (c.Equals('\n'))
                         {
                             fila++;
+                            columna = 1;
                             agregarToken(Token.Tipo.COMENTARIO);
                         }
                         else
@@ -685,6 +719,11 @@ namespace Proyecto_2
                         break;
                     //comentario multilinea
                     case 6:
+                        if (c.Equals('\n'))
+                        {
+                            fila++;
+                            columna = 1;
+                        }
                         if (c.Equals('*'))
                         {
                             columna++;
@@ -698,8 +737,7 @@ namespace Proyecto_2
                             else
                             {
                                 Console.WriteLine("Se esperaba un '*/'");
-                                auxlex = "";
-                                estado = 0;
+                                agregarError("Se esperaba \'/\'", columna, fila);
                             }
                         }
                         else
@@ -733,7 +771,8 @@ namespace Proyecto_2
                                 }
                                 else
                                 {
-
+                                    i--;
+                                    agregarToken(Token.Tipo.DECIMAL);
                                 }
                             }
                         }
@@ -743,6 +782,19 @@ namespace Proyecto_2
                         if (c.Equals(' ') || c.Equals('\t') || c.Equals('\n'))
                         {
                             i--;
+                            Console.WriteLine(auxlex);
+                            agregarToken(Token.Tipo.ID);
+                        }
+                        else if (Char.IsLetterOrDigit(c))
+                        {
+                            auxlex += c;
+                            columna++;
+                            estado = 8;
+                        }
+                        else
+                        {
+                            i--;
+                            Console.WriteLine(auxlex);
                             agregarToken(Token.Tipo.ID);
                         }
                         break;
@@ -768,51 +820,51 @@ namespace Proyecto_2
 
         public void generarHTML_Tokens(LinkedList<Token> lista_tokens)
         {
+            DateTime dia = DateTime.Now;
             try
             {
                 MessageBox.Show("HTML con tokens Reconocidos ha sido creado", "HTML creado");
-                SaveFileDialog guardar = new SaveFileDialog();
-                guardar.Filter = "(*.html)|*.html";
-                if (guardar.ShowDialog() == DialogResult.OK)
+                using (Stream s = File.Open(rutaTokens, FileMode.Append))
+                using (StreamWriter sw = new StreamWriter(s))
                 {
-                    using (Stream s = File.Open(guardar.FileName, FileMode.Create))
-                    using (StreamWriter sw = new StreamWriter(s))
+                    sw.WriteLine("<!DOCTYPE html>");
+                    sw.WriteLine("<html>");
+                    sw.WriteLine("<head>");
+                    sw.WriteLine("<title>Tokens Guardados</title>");
+                    sw.WriteLine("<meta charset=" + '"' + "utf-8" + '"' + "/>");
+                    sw.WriteLine("</head>");
+                    sw.WriteLine("<body>");
+                    sw.WriteLine("<h1><center>Listado de Tokens</center></h1>");
+                    sw.WriteLine("<p>\n" + "<br>\n" + "</p>");
+                    sw.WriteLine("<br>\n<br>\n");
+                    sw.WriteLine("<p><center>" + dia + "</center></p>");
+                    sw.WriteLine("<br>\n<br>\n");
+                    sw.WriteLine("<center>\n" + "<table border= 4>");
+                    sw.WriteLine("<tr>");
+                    sw.WriteLine("<td><center><b>#</b></center></td>");
+                    sw.WriteLine("<td><center><b>Lexema</b></center></td>");
+                    sw.WriteLine("<td><center><b>id Token</b></center></td>");
+                    sw.WriteLine("<td><center><b>Token</b></center></td>");
+                    sw.WriteLine("<td><center><b>Fila</b></center></td>");
+                    sw.WriteLine("<td><center><b>Columna</b></center></td>");
+                    sw.WriteLine("</tr>");
+                    int i = 1;
+                    foreach (Token item in lista_tokens)
                     {
-                        sw.WriteLine("<!DOCTYPE html>");
-                        sw.WriteLine("<html>");
-                        sw.WriteLine("<head>");
-                        sw.WriteLine("<title>Tokens Guardados</title>");
-                        sw.WriteLine("<meta charset=" + '"' + "utf-8" + '"' + "/>");
-                        sw.WriteLine("</head>");
-                        sw.WriteLine("<body>");
-                        sw.WriteLine("<h1><center>Listado de Tokens</center></h1>");
-                        sw.WriteLine("<p>\n" + "<br>\n" + "</p>");
-                        sw.WriteLine("<center>\n" + "<table border= 4>");
                         sw.WriteLine("<tr>");
-                        sw.WriteLine("<td><center><b>#</b></center></td>");
-                        sw.WriteLine("<td><center><b>Lexema</b></center></td>");
-                        sw.WriteLine("<td><center><b>id Token</b></center></td>");
-                        sw.WriteLine("<td><center><b>Token</b></center></td>");
-                        sw.WriteLine("<td><center><b>Fila</b></center></td>");
-                        sw.WriteLine("<td><center><b>Columna</b></center></td>");
+                        sw.WriteLine("<td><center>" + i + "</center></td>");
+                        sw.WriteLine("<td><center>" + item.getValor() + "</center></td>");
+                        sw.WriteLine("<td><center>" + item.getId() + "</center></td>");
+                        sw.WriteLine("<td><center>" + item.getTipoToken() + "</center></td>");
+                        sw.WriteLine("<td><center>" + item.getFila() + "</center></td>");
+                        sw.WriteLine("<td><center>" + item.getColumna() + "</center></td>");
                         sw.WriteLine("</tr>");
-                        int i = 1;
-                        foreach (Token item in lista_tokens)
-                        {
-                            sw.WriteLine("<tr>");
-                            sw.WriteLine("<td><center>" + i + "</center></td>");
-                            sw.WriteLine("<td><center>" + item.getValor() + "</center></td>");
-                            sw.WriteLine("<td><center>" + item.getId() + "</center></td>");
-                            sw.WriteLine("<td><center>" + item.getTipoToken() + "</center></td>");
-                            sw.WriteLine("<td><center>" + item.getFila() + "</center></td>");
-                            sw.WriteLine("<td><center>" + item.getColumna() + "</center></td>");
-                            sw.WriteLine("</tr>");
-                            i++;
-                        }
-                        sw.WriteLine("</center>\n" + "</table>");
-                        sw.WriteLine("</body>");
-                        sw.Write("</html>");
+                        i++;
                     }
+                    sw.WriteLine("</center>\n" + "</table>");
+                    sw.WriteLine("</body>");
+                    sw.Write("</html>");
+                    sw.Close();
                 }
             }
             catch (FileNotFoundException ex)
@@ -831,49 +883,49 @@ namespace Proyecto_2
 
         public void generar_HTML_Errores()
         {
+            DateTime dia = DateTime.Now;
             try
             {
                 MessageBox.Show("HTML errores ha sido creado", "HTML creado");
-                SaveFileDialog guardar = new SaveFileDialog();
-                guardar.Filter = "(*.html)|*.html";
-                if (guardar.ShowDialog() == DialogResult.OK)
+
+                using (Stream s = File.Open(rutaError, FileMode.Append))
+                using (StreamWriter sw = new StreamWriter(s))
                 {
-                    using (Stream s = File.Open(guardar.FileName, FileMode.Create))
-                    using (StreamWriter sw = new StreamWriter(s))
+                    sw.WriteLine("<!DOCTYPE html>");
+                    sw.WriteLine("<html>");
+                    sw.WriteLine("<head>");
+                    sw.WriteLine("<title>Errores Reconocidos</title>");
+                    sw.WriteLine("<meta charset=" + '"' + "utf-8" + '"' + "/>");
+                    sw.WriteLine("</head>");
+                    sw.WriteLine("<body>");
+                    sw.WriteLine("<h1><center>Listado de Errores</center></h1>");
+                    sw.WriteLine("<p>\n" + "<br>\n" + "</p>");
+                    sw.WriteLine("<br>\n<br>\n");
+                    sw.WriteLine("<p><center>" + dia + "</center></p>");
+                    sw.WriteLine("<br>\n<br>\n");
+                    sw.WriteLine("<center>\n" + "<table border= 4>");
+                    sw.WriteLine("<tr>");
+                    sw.WriteLine("<td><center><b>#</b></center></td>");
+                    sw.WriteLine("<td><center><b>Fila</b></center></td>");
+                    sw.WriteLine("<td><center><b>Columna</b></center></td>");
+                    sw.WriteLine("<td><center><b>Caracter</b></center></td>");
+                    sw.WriteLine("<td><center><b>Descripcion</b></center></td>");
+                    sw.WriteLine("</tr>");
+                    int i = 1;
+                    foreach (Error item in listaErrores)
                     {
-                        sw.WriteLine("<!DOCTYPE html>");
-                        sw.WriteLine("<html>");
-                        sw.WriteLine("<head>");
-                        sw.WriteLine("<title>Errores Reconocidos</title>");
-                        sw.WriteLine("<meta charset=" + '"' + "utf-8" + '"' + "/>");
-                        sw.WriteLine("</head>");
-                        sw.WriteLine("<body>");
-                        sw.WriteLine("<h1><center>Listado de Errores</center></h1>");
-                        sw.WriteLine("<p>\n" + "<br>\n" + "</p>");
-                        sw.WriteLine("<center>\n" + "<table border= 4>");
                         sw.WriteLine("<tr>");
-                        sw.WriteLine("<td><center><b>#</b></center></td>");
-                        sw.WriteLine("<td><center><b>Fila</b></center></td>");
-                        sw.WriteLine("<td><center><b>Columna</b></center></td>");
-                        sw.WriteLine("<td><center><b>Caracter</b></center></td>");
-                        sw.WriteLine("<td><center><b>Descripcion</b></center></td>");
+                        sw.WriteLine("<td><center>" + i + "</center></td>");
+                        sw.WriteLine("<td><center>" + item.getFila() + "</center></td>");
+                        sw.WriteLine("<td><center>" + item.getColumna() + "</center></td>");
+                        sw.WriteLine("<td><center>" + item.getError() + "</center></td>");
+                        sw.WriteLine("<td><center>" + item.getDescripcion() + "</center></td>");
                         sw.WriteLine("</tr>");
-                        int i = 1;
-                        foreach (Error item in listaErrores)
-                        {
-                            sw.WriteLine("<tr>");
-                            sw.WriteLine("<td><center>" + i + "</center></td>");
-                            sw.WriteLine("<td><center>" + item.getFila() + "</center></td>");
-                            sw.WriteLine("<td><center>" + item.getColumna() + "</center></td>");
-                            sw.WriteLine("<td><center>" + item.getError() + "</center></td>");
-                            sw.WriteLine("<td><center>" + item.getDescripcion() + "</center></td>");
-                            sw.WriteLine("</tr>");
-                            i++;
-                        }
-                        sw.WriteLine("</center>\n" + "</table>");
-                        sw.WriteLine("</body>");
-                        sw.Write("</html>");
+                        i++;
                     }
+                    sw.WriteLine("</center>\n" + "</table>");
+                    sw.WriteLine("</body>");
+                    sw.Write("</html>");
                 }
             }
             catch (FileNotFoundException ex)
